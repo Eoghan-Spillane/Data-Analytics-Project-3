@@ -13,7 +13,7 @@ Created on Tue Dec  8 17:56:57 2020
 """
 
 import pandas as pd
-
+import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 
@@ -139,29 +139,28 @@ def cleanData2():
 
 def task2():
     df = cleanData2()
-    twoCols = df[['Pclass', 'Survived']].dropna()
+    twoCols = df[['workType', 'Income']].dropna()
 
-    groups = twoCols.groupby(['Pclass', 'Survived'])
-
-    print(groups.size())
+    groups = twoCols.groupby(['workType', 'Income'])
 
     # uniques = np.unique(twoCols['Pclass'])
 
-    attribute_value = 1
+    attribute = "State-gov"
 
-    print('Entropy for', attribute_value)
+    print('Entropy for', attribute)
 
-    sumVal1 = groups.size()[attribute_value].sum()
-    print(sumVal1, groups.size()[attribute_value])
-    # print(sumVal1, groups.size()[first_value])
+    FirstVal = groups.size()[attribute].sum()
+    pi = (groups.size()[attribute] / FirstVal)
+    log2s = np.log2((groups.size()[attribute] / FirstVal))
+    entropy = log2s.multiply(-1 * pi)
 
-    pi = (groups.size()[attribute_value] / sumVal1)
-    # print(pi)
-    log2s = np.log2((groups.size()[attribute_value] / sumVal1))
+    print('Entropy', entropy.sum())
 
-    entropies = log2s.multiply(-1 * pi)
-
-    print('Entropy', entropies.sum())
+    """
+    Entropy for Private = 0.7562417707440523
+    Entropy for State-gov = 0.8379148918407011
+    """
+    # TODO Description
 
 
 def task3():
@@ -172,4 +171,4 @@ def task4():
     """TODO"""
 
 
-task1()
+task2()
