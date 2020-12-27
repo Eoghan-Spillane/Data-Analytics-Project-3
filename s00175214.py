@@ -29,6 +29,9 @@ def importFile():
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.max_colwidth', None)
+
+    # This is used to make print(df) print a larger sample of the dataset to verify my cleaning has worked.
+
     df = pd.read_csv("people.csv", encoding="ISO-8859-1")
     return df
 
@@ -100,12 +103,6 @@ def task1():
     print('Training: ', clf.score(X_train, y_train))
     print('Test: ', clf.score(X_test, y_test))
 
-    # Training at 33%: 0.8097258229240317
-    # Testing at 33%: 0.8035405192761605
-
-    # Training at 95%: 0.8343815513626834
-    # Testing at 95%: 0.7873138444567016
-
     """
     Training at 33%: 0.8097258229240317
     Testing at 33%: 0.8035405192761605
@@ -115,6 +112,10 @@ def task1():
     
     When running the code, I noticed that each result has a variance of +-0.03.
     I saw this when running the program multiple times. regardless of testing at 0.95 or 0.333.
+    While the training result for 95% was higher the testing result was lower showing that using 33%,
+    provide a more consistent pattern to the results that could be favorable
+    
+    However both 33% and 95% result in a model with a mean accuracy of around 80%
     
     """
 
@@ -163,8 +164,14 @@ def task2():
     """
     Entropy for Private = 0.7562417707440523
     Entropy for State-gov = 0.8379148918407011
+    
+    Both of these values are quite close to 1 which would mean they're "totally random".
+    This means that it's quite uncertain that the specific workType has has a huge effect on the on the income etc.
+    
+    Without also factoring in the something like the job itself in which you could work in the same type of job,
+    but be paid significantly more than someone else in the same workType.
+
     """
-    # TODO Description
 
 
 def cleanData3():
@@ -243,17 +250,20 @@ def task3():
     Random Forest classifier
     Training   0.7925950480364243
     Test   0.7085031134629713
+    
+    The numbers above are the accuracy scores, they vary quite a bit depending on the classifier thats used.
+    The difference between the test and training error is found with the Decision Tree classifier and the Random Forest classifier.
+    while the Naive Bayes has only a 0.001 difference between the training and testing while the the other two have a difference of around 0.09.
     """
 
     labels = ['DCT', 'NB', 'RFS']
-    x = np.arange(len(labels))  # the label locations
-    width = 0.35  # the width of the bars
+    x = np.arange(len(labels))
+    width = 0.35
 
     fig, ax = plt.subplots()
     rects1 = ax.bar(x - width / 2, r1, width, label='Training')
     rects2 = ax.bar(x + width / 2, r2, width, label='Testing')
 
-    # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Scores')
     ax.set_title('Females overs 30')
     ax.set_xticks(x)
@@ -261,7 +271,6 @@ def task3():
     ax.legend(loc="lower right")
 
     def autolabel(rects):
-        """Attach a text label above each bar in *rects*, displaying its height."""
         for rect in rects:
             height = rect.get_height()
             ax.annotate('{}'.format(height),
@@ -313,39 +322,52 @@ def cleanData4():
 def task4():
     s1 = cleanData4()
     s1 = s1.dropna()
-    flt = s1[['Income', 'education', 'job']]
+    s2 = s1[['Income', 'education', 'job']]
     print("\n Education, Income and Jobs")
-    flt = flt.fillna(flt.mean())
+    s2 = s2.fillna(s2.mean())
     scalingObj = preprocessing.MinMaxScaler()
-    newFLT = scalingObj.fit_transform(flt)
-    costs = []
+    Scaled = scalingObj.fit_transform(s2)
+    costs = []  # Storing Results for the Graphs
     for i in range(7):
-        kmeans = KMeans(n_clusters=i + 1).fit(newFLT)
+        kmeans = KMeans(n_clusters=i + 1).fit(Scaled)
         costs.append(kmeans.inertia_)
         print(kmeans.inertia_)  # this line returns cost
     indexs = np.arange(1, 8)
-
+    plt.xlabel("Number of Clusters")
+    plt.ylabel("Distortion")
+    plt.title("Cluster and K-means inertia displayed via Elbow Method : 1")
     plt.plot(indexs, costs)
     plt.show()
 
+    """
+    Using the Elbow method and looking at the data it appears that either 4 is a good number of clusters 
+    """
 
     print("\n Education and Jobs")
     s1 = cleanData4()
     s1 = s1.dropna()
-    flt = s1[['education', 'job']]
+    s2 = s1[['education', 'job']]
 
-    flt = flt.fillna(flt.mean())
+    s2 = s2.fillna(s2.mean())
     scalingObj = preprocessing.MinMaxScaler() # normalizing the data so it doesn't get skewed
-    newFLT = scalingObj.fit_transform(flt)
+    Scaled = scalingObj.fit_transform(s2)
     costs = []
     for i in range(7):
-        kmeans = KMeans(n_clusters=i + 1).fit(newFLT)
+        kmeans = KMeans(n_clusters=i + 1).fit(Scaled)
         costs.append(kmeans.inertia_)
         print(kmeans.inertia_)  # this line returns cost
     indexs = np.arange(1, 8)
-
+    plt.xlabel("Number of Clusters")
+    plt.title("Cluster and K-means Inertia displayed via Elbow Method : 2")
+    plt.ylabel("Distortion")
     plt.plot(indexs, costs)
     plt.show()
+
+    """
+    In the above the distortion doesn't reduce as rapidly as previously.
+    It starts to level out from the third cluster onwards. 
+    This means that having a third attribute most likely helps with increasing accuracy and reducing distortion
+    """
 
 
 task4()
